@@ -1,0 +1,11 @@
+{
+    "id": "com.fabien.xtream-player",
+    "version": "1.0.0",
+    "vendor": "Fabien",
+    "type": "web",
+    "main": "index.html",
+    "title": "IPTV Player",
+    "icon": "icon.png",
+    "largeIcon": "icon-large.png",
+    "bgColor": "#000000"
+}
