@@ -4,6 +4,9 @@ Below you will find some information on how to perform common tasks.
 You can find the most recent version of this guide [here](https://github.com/enactjs/templates/blob/master/packages/typescript/template/README.md).
 Additional documentation on @enact/cli can be found [here](https://github.com/enactjs/cli/blob/master/docs/index.md).
 
+## Install on your TV
+https://webostv.developer.lge.com/develop/getting-started/developer-mode-app
+
 ## Folder Structure
 
 After creation, your project should look like this:
