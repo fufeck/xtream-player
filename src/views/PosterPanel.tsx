@@ -105,7 +105,7 @@ const PosterPanel = ({ category }: PosterPanelProps) => {
         <VirtualGridList
           dataSize={filteredChannels.length}
           itemRenderer={renderItem}
-          itemSize={{ minWidth: ri.scale(500), minHeight: ri.scale(750) }}
+          itemSize={{ minWidth: ri.scale(650), minHeight: ri.scale(975) }}
           spacing={ri.scale(8)}
           style={{ height: "calc(100vh - 400px)" }}
         />
