@@ -163,7 +163,6 @@ const LivePanel = () => {
           onSelectGroup={setSelectedGroup}
           query={query}
           onQueryChange={handleQueryChange}
-          placeholder="Rechercher une chaîne…"
         />
         <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
           {filteredChannels.length === 0 && (
