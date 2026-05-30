@@ -9,6 +9,8 @@ import { useNavigate } from 'react-router-dom';
 import ri from '@enact/ui/resolution';
 
 import { useApp } from '../context/AppContext';
+import { extractGroups } from '../services/playlistService';
+import CategoryFilter from '../components/CategoryFilter';
 
 type ItemRendererArgs = { index: number; style: React.CSSProperties } & Record<string, unknown>;
 
@@ -20,18 +22,25 @@ const LivePanel = () => {
   const navigate = useNavigate();
   const { channels } = useApp();
   const [query, setQuery] = useState('');
+  const [selectedGroup, setSelectedGroup] = useState<string | null>(null);
 
   const handleQueryChange = useCallback(
     ({ value }: { value: string }) => setQuery(value),
     [],
   );
 
+  const groups = useMemo(
+    () => extractGroups(channels.filter((c) => c.category === 'lives')),
+    [channels],
+  );
+
   const filteredChannels = useMemo(() => {
     const liveChannels = channels.filter((c) => c.category === 'lives');
-    if (!query.trim()) return liveChannels;
+    const grouped = selectedGroup ? liveChannels.filter((c) => c.group === selectedGroup) : liveChannels;
+    if (!query.trim()) return grouped;
     const q = normalize(query.trim());
-    return liveChannels.filter((c) => normalize(c.name).includes(q));
-  }, [channels, query]);
+    return grouped.filter((c) => normalize(c.name).includes(q));
+  }, [channels, query, selectedGroup]);
 
   const handleBack = useCallback(() => navigate(-1), [navigate]);
 
@@ -83,29 +92,35 @@ const LivePanel = () => {
   return (
     <Panel noCloseButton onBack={handleBack}>
       <Header title="Chaînes TV" subtitle={subtitle} onBack={handleBack} />
-
-      <Input
-        spotlightId="live-search-input"
-        placeholder="Rechercher une chaîne…"
-        value={query}
-        onChange={handleQueryChange}
-        style={{ width: '100%' }}
-      />
-
-      {filteredChannels.length === 0 && (
-        <div style={{ padding: '2rem' }}>
-          <BodyText centered>Aucune chaîne trouvée.</BodyText>
-        </div>
-      )}
-
-      {filteredChannels.length > 0 && (
-        <VirtualList
-          dataSize={filteredChannels.length}
-          itemRenderer={renderItem}
-          itemSize={ri.scale(96)}
-          style={{ height: 'calc(100vh - 400px)' }}
+      <div style={{ display: 'flex', height: 'calc(100vh - 300px)' }}>
+        <CategoryFilter
+          groups={groups}
+          selectedGroup={selectedGroup}
+          onSelectGroup={setSelectedGroup}
         />
-      )}
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+          <Input
+            spotlightId="live-search-input"
+            placeholder="Rechercher une chaîne…"
+            value={query}
+            onChange={handleQueryChange}
+            style={{ width: '100%' }}
+          />
+          {filteredChannels.length === 0 && (
+            <div style={{ padding: '2rem' }}>
+              <BodyText centered>Aucune chaîne trouvée.</BodyText>
+            </div>
+          )}
+          {filteredChannels.length > 0 && (
+            <VirtualList
+              dataSize={filteredChannels.length}
+              itemRenderer={renderItem}
+              itemSize={ri.scale(96)}
+              style={{ height: 'calc(100vh - 400px)' }}
+            />
+          )}
+        </div>
+      </div>
     </Panel>
   );
 };
