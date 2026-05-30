@@ -5,6 +5,7 @@ import Spinner from '@enact/sandstone/Spinner';
 import BodyText from '@enact/sandstone/BodyText';
 import { useNavigate } from 'react-router-dom';
 import ri from '@enact/ui/resolution';
+import Spotlight from '@enact/spotlight';
 
 import { CATEGORIES } from '../config';
 import { useApp } from '../context/AppContext';
@@ -17,13 +18,16 @@ const CATEGORY_ROUTES: Record<CategoryType, string> = {
   series: '/series',
 };
 
+const FIRST_CARD_ID = 'home-first-card';
+
 interface CategoryCardProps {
   category: Category;
   count: number | null;
   onClick: (id: CategoryType) => void;
+  spotlightId?: string;
 }
 
-const CategoryCard = ({ category, count, onClick }: CategoryCardProps) => {
+const CategoryCard = ({ category, count, onClick, spotlightId }: CategoryCardProps) => {
   const handleClick = useCallback(
     () => onClick(category.id),
     [category.id, onClick],
@@ -35,6 +39,7 @@ const CategoryCard = ({ category, count, onClick }: CategoryCardProps) => {
         size="large"
         icon={category.icon}
         onClick={handleClick}
+        spotlightId={spotlightId}
         style={{ width: ri.scale(380), height: ri.scale(200) }}
       >
         {category.label}
@@ -55,6 +60,12 @@ const HomePanel = () => {
   useEffect(() => {
     refresh();
   }, [refresh]);
+
+  useEffect(() => {
+    if (!loading && !error) {
+      Spotlight.focus(FIRST_CARD_ID);
+    }
+  }, [loading, error]);
 
   const handleLogout = useCallback(() => {
     clearCredentials();
@@ -130,12 +141,13 @@ const HomePanel = () => {
             height: 'calc(100vh - 200px)',
           }}
         >
-          {CATEGORIES.map((cat) => (
+          {CATEGORIES.map((cat, i) => (
             <CategoryCard
               key={cat.id}
               category={cat}
               count={counts[cat.id] ?? null}
               onClick={handleSelect}
+              spotlightId={i === 0 ? FIRST_CARD_ID : undefined}
             />
           ))}
         </div>

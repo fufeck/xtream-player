@@ -1,19 +1,25 @@
-import { useState, useEffect } from 'react';
-import ThemeDecorator from '@enact/sandstone/ThemeDecorator';
-import Spinner from '@enact/sandstone/Spinner';
-import { HashRouter, Routes, Route, Navigate, useParams } from 'react-router-dom';
+import { useState, useEffect } from "react";
+import ThemeDecorator from "@enact/sandstone/ThemeDecorator";
+import Spinner from "@enact/sandstone/Spinner";
+import {
+  HashRouter,
+  Routes,
+  Route,
+  Navigate,
+  useParams,
+} from "react-router-dom";
 
-import { AppProvider } from '../context/AppContext';
-import HomePanel from '../views/HomePanel';
-import PosterPanel from '../views/PosterPanel';
-import LivePanel from '../views/LivePanel';
-import SeriePanel from '../views/SeriePanel';
-import PlayerPanel from '../views/PlayerPanel';
-import LoginPanel from '../views/LoginPanel';
-import { getCredentials } from '../services/credentialsService';
-import { validateCredentials } from '../services/xtreamApi';
+import { AppProvider } from "../context/AppContext";
+import HomePanel from "../views/HomePanel";
+import PosterPanel from "../views/PosterPanel";
+import LivePanel from "../views/LivePanel";
+import SeriePanel from "../views/SeriePanel";
+import PlayerPanel from "../views/PlayerPanel";
+import LoginPanel from "../views/LoginPanel";
+import { getCredentials } from "../services/credentialsService";
+import { validateCredentials } from "../services/xtreamApi";
 
-import css from './App.module.less';
+import css from "./App.module.less";
 
 const SerieRoute = () => {
   const { series_id } = useParams<{ series_id: string }>();
@@ -28,17 +34,24 @@ const AuthGate = () => {
     const c = getCredentials();
     Promise.resolve()
       .then(() => {
-        if (!c) return '/login';
+        if (!c) return "/login";
         return validateCredentials(c.host, c.username, c.password)
-          .then((ok) => (ok ? '/home' : '/login'))
-          .catch(() => '/login');
+          .then((ok) => (ok ? "/home" : "/login"))
+          .catch(() => "/login");
       })
       .then((dest) => setTarget(dest));
   }, []);
 
   if (!target) {
     return (
-      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "100vh",
+        }}
+      >
         <Spinner>Vérification de la connexion…</Spinner>
       </div>
     );
@@ -58,9 +71,18 @@ const AppBase = (props: React.HTMLAttributes<HTMLDivElement>) => (
           <Route path="/movies" element={<PosterPanel category="movies" />} />
           <Route path="/series" element={<PosterPanel category="series" />} />
           <Route path="/series/:series_id" element={<SerieRoute />} />
-          <Route path="/lives/player/:stream_id" element={<PlayerPanel type="lives" />} />
-          <Route path="/movies/player/:stream_id" element={<PlayerPanel type="movies" />} />
-          <Route path="/series/player/:stream_id" element={<PlayerPanel type="series" />} />
+          <Route
+            path="/lives/player/:stream_id"
+            element={<PlayerPanel type="lives" />}
+          />
+          <Route
+            path="/movies/player/:stream_id"
+            element={<PlayerPanel type="movies" />}
+          />
+          <Route
+            path="/series/player/:stream_id"
+            element={<PlayerPanel type="series" />}
+          />
         </Routes>
       </HashRouter>
     </AppProvider>
