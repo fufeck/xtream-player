@@ -4,6 +4,7 @@ import { VirtualList } from "@enact/sandstone/VirtualList";
 import Item from "@enact/sandstone/Item";
 import BodyText from "@enact/sandstone/BodyText";
 import Icon from "@enact/sandstone/Icon";
+import Image from "@enact/sandstone/Image";
 import { useNavigate } from "react-router-dom";
 import ri from "@enact/ui/resolution";
 
@@ -103,13 +104,11 @@ const LivePanel = () => {
       const channel = filteredChannels[index as number];
       if (!channel) return null;
       const logo = channel.logo ? (
-        <img
+        <Image
           src={channel.logo}
-          alt=""
           style={{
             width: ri.scale(56),
             height: ri.scale(56),
-            objectFit: "contain",
             borderRadius: ri.scale(4),
           }}
         />
