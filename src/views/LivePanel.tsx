@@ -2,7 +2,6 @@ import { useMemo, useCallback, useState } from 'react';
 import { Panel, Header } from '@enact/sandstone/Panels';
 import { VirtualList } from '@enact/sandstone/VirtualList';
 import Item from '@enact/sandstone/Item';
-import Input from '@enact/sandstone/Input';
 import BodyText from '@enact/sandstone/BodyText';
 import Icon from '@enact/sandstone/Icon';
 import { useNavigate } from 'react-router-dom';
@@ -97,15 +96,11 @@ const LivePanel = () => {
           groups={groups}
           selectedGroup={selectedGroup}
           onSelectGroup={setSelectedGroup}
+          query={query}
+          onQueryChange={handleQueryChange}
+          placeholder="Rechercher une chaîne…"
         />
         <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
-          <Input
-            spotlightId="live-search-input"
-            placeholder="Rechercher une chaîne…"
-            value={query}
-            onChange={handleQueryChange}
-            style={{ width: '100%' }}
-          />
           {filteredChannels.length === 0 && (
             <div style={{ padding: '2rem' }}>
               <BodyText centered>Aucune chaîne trouvée.</BodyText>

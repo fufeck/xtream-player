@@ -2,7 +2,6 @@ import { useMemo, useCallback, useState } from "react";
 import { Panel, Header } from "@enact/sandstone/Panels";
 import { VirtualGridList } from "@enact/sandstone/VirtualList";
 import BodyText from "@enact/sandstone/BodyText";
-import Input from "@enact/sandstone/Input";
 import ActionGuide from "@enact/sandstone/ActionGuide";
 import { useNavigate } from "react-router-dom";
 import ri from "@enact/ui/resolution";
@@ -102,15 +101,10 @@ const PosterPanel = ({ category }: PosterPanelProps) => {
           groups={groups}
           selectedGroup={selectedGroup}
           onSelectGroup={setSelectedGroup}
+          query={query}
+          onQueryChange={handleQueryChange}
         />
         <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
-          <Input
-            spotlightId="search-input"
-            placeholder="Rechercher…"
-            value={query}
-            onChange={handleQueryChange}
-            style={{ width: "100%" }}
-          />
           {filteredChannels.length === 0 && (
             <div style={{ padding: "2rem" }}>
               <BodyText centered>Aucun contenu trouvé.</BodyText>
