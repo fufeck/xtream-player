@@ -45,7 +45,6 @@ const CategoryFilter = ({
         placeholder={placeholder}
         value={query}
         onChange={onQueryChange}
-        iconBefore="search"
       />
       <Scroller direction="vertical" style={{ flex: 1 }}>
         <Item
