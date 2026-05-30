@@ -1,7 +1,7 @@
 import { useCallback } from "react";
 import Scroller from "@enact/sandstone/Scroller";
 import Item from "@enact/sandstone/Item";
-import Input from "@enact/sandstone/Input";
+import { InputField } from "@enact/sandstone/Input";
 
 interface CategoryFilterProps {
   groups: string[];
@@ -11,6 +11,8 @@ interface CategoryFilterProps {
   onQueryChange: ({ value }: { value: string }) => void;
   placeholder?: string;
 }
+
+const favoritesIcon = <span style={{ color: "#e6b655" }}>★</span>;
 
 const CategoryFilter = ({
   groups,
@@ -40,12 +42,21 @@ const CategoryFilter = ({
         flexDirection: "column",
       }}
     >
-      <Input
+      <InputField
         placeholder={placeholder}
         value={query}
         onChange={onQueryChange}
+        iconBefore="search"
       />
       <Scroller direction="vertical" style={{ flex: 1 }}>
+        <Item
+          data-group="__favorites__"
+          onClick={handleGroupClick}
+          style={selectedGroup === "__favorites__" ? { color: "#e6b655" } : undefined}
+          slotBefore={favoritesIcon}
+        >
+          Favoris
+        </Item>
         {groups.map((group) => (
           <Item
             key={group}

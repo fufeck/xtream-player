@@ -1,4 +1,4 @@
-import { useMemo, useCallback, useState } from 'react';
+import { useMemo, useCallback, useState, useRef } from 'react';
 import { Panel, Header } from '@enact/sandstone/Panels';
 import { VirtualList } from '@enact/sandstone/VirtualList';
 import Item from '@enact/sandstone/Item';
@@ -9,9 +9,12 @@ import ri from '@enact/ui/resolution';
 
 import { useApp } from '../context/AppContext';
 import { extractGroups } from '../services/playlistService';
+import { getFavoriteIds, toggleFavorite } from '../services/favoritesService';
 import CategoryFilter from '../components/CategoryFilter';
 
 type ItemRendererArgs = { index: number; style: React.CSSProperties } & Record<string, unknown>;
+
+const FAVORITES_GROUP = '__favorites__';
 
 function normalize(str: string): string {
   return str.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
@@ -22,6 +25,9 @@ const LivePanel = () => {
   const { channels } = useApp();
   const [query, setQuery] = useState('');
   const [selectedGroup, setSelectedGroup] = useState<string | null>(null);
+  const [favoritesVersion, setFavoritesVersion] = useState(0);
+  const longPressTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const longPressActiveRef = useRef(false);
 
   const handleQueryChange = useCallback(
     ({ value }: { value: string }) => setQuery(value),
@@ -33,23 +39,63 @@ const LivePanel = () => {
     [channels],
   );
 
+  const favoriteIds = useMemo(() => getFavoriteIds(), [favoritesVersion]); // eslint-disable-line react-hooks/exhaustive-deps
+
   const filteredChannels = useMemo(() => {
     const liveChannels = channels.filter((c) => c.category === 'lives');
-    const grouped = selectedGroup ? liveChannels.filter((c) => c.group === selectedGroup) : liveChannels;
+    let grouped = liveChannels;
+    if (selectedGroup === FAVORITES_GROUP) {
+      const favIds = getFavoriteIds();
+      grouped = liveChannels.filter((c) => favIds.includes(c.id));
+    } else if (selectedGroup) {
+      grouped = liveChannels.filter((c) => c.group === selectedGroup);
+    }
     if (!query.trim()) return grouped;
     const q = normalize(query.trim());
     return grouped.filter((c) => normalize(c.name).includes(q));
-  }, [channels, query, selectedGroup]);
+  }, [channels, query, selectedGroup, favoritesVersion]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleBack = useCallback(() => navigate(-1), [navigate]);
 
   const handleItemClick = useCallback(
     (e: React.MouseEvent<HTMLElement>) => {
+      if (longPressActiveRef.current) {
+        longPressActiveRef.current = false;
+        return;
+      }
       const idx = Number((e.currentTarget as HTMLElement).dataset.index);
       const channel = filteredChannels[idx];
       if (channel) navigate(`/lives/player/${channel.id}`);
     },
     [filteredChannels, navigate],
+  );
+
+  const handleKeyDown = useCallback(
+    (e: React.KeyboardEvent<HTMLElement>) => {
+      if (e.key !== 'Enter' || e.repeat) return;
+      const idx = Number((e.currentTarget as HTMLElement).dataset.index);
+      longPressTimerRef.current = setTimeout(() => {
+        longPressTimerRef.current = null;
+        const channel = filteredChannels[idx];
+        if (channel) {
+          longPressActiveRef.current = true;
+          toggleFavorite(channel.id);
+          setFavoritesVersion((v) => v + 1);
+        }
+      }, 700);
+    },
+    [filteredChannels],
+  );
+
+  const handleKeyUp = useCallback(
+    (e: React.KeyboardEvent<HTMLElement>) => {
+      if (e.key !== 'Enter') return;
+      if (longPressTimerRef.current !== null) {
+        clearTimeout(longPressTimerRef.current);
+        longPressTimerRef.current = null;
+      }
+    },
+    [],
   );
 
   const renderItem = useCallback(
@@ -71,19 +117,26 @@ const LivePanel = () => {
         )
         : <Icon>playcircle</Icon>;
 
+      const star = favoriteIds.includes(channel.id)
+        ? <span style={{ color: '#e6b655' }}>★</span>
+        : undefined;
+
       return (
         <Item
           {...(rest as React.HTMLAttributes<HTMLElement>)}
           style={style as React.CSSProperties}
           slotBefore={logo}
+          slotAfter={star}
           onClick={handleItemClick}
+          onKeyDown={handleKeyDown}
+          onKeyUp={handleKeyUp}
           data-index={index as number}
         >
           {channel.name}
         </Item>
       );
     },
-    [filteredChannels, handleItemClick],
+    [filteredChannels, favoriteIds, handleItemClick, handleKeyDown, handleKeyUp],
   );
 
   const subtitle = `${filteredChannels.length} chaîne${filteredChannels.length > 1 ? 's' : ''}`;
