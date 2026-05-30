@@ -1,6 +1,7 @@
 import { useCallback } from "react";
 import Scroller from "@enact/sandstone/Scroller";
 import Item from "@enact/sandstone/Item";
+import Icon from "@enact/sandstone/Icon";
 import { InputField } from "@enact/sandstone/Input";
 
 interface CategoryFilterProps {
@@ -11,8 +12,6 @@ interface CategoryFilterProps {
   onQueryChange: ({ value }: { value: string }) => void;
   placeholder?: string;
 }
-
-const favoritesIcon = <span style={{ color: "#e6b655" }}>★</span>;
 
 const CategoryFilter = ({
   groups,
@@ -52,8 +51,10 @@ const CategoryFilter = ({
         <Item
           data-group="__favorites__"
           onClick={handleGroupClick}
-          style={selectedGroup === "__favorites__" ? { color: "#e6b655" } : undefined}
-          slotBefore={favoritesIcon}
+          style={
+            selectedGroup === "__favorites__" ? { color: "#e6b655" } : undefined
+          }
+          slotBefore={<Icon>star</Icon>}
         >
           Favoris
         </Item>

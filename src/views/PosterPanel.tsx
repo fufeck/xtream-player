@@ -5,6 +5,7 @@ import BodyText from "@enact/sandstone/BodyText";
 import ActionGuide from "@enact/sandstone/ActionGuide";
 import { useNavigate } from "react-router-dom";
 import ri from "@enact/ui/resolution";
+import Icon from "@enact/sandstone/Icon";
 
 import { CATEGORIES } from "../config";
 import { useApp } from "../context/AppContext";
@@ -130,20 +131,16 @@ const PosterPanel = ({ category }: PosterPanelProps) => {
             data-index={index as number}
           />
           {favoriteIds.includes(channel.id) && (
-            <div
+            <Icon
               style={{
                 position: "absolute",
-                top: ri.scale(36),
-                right: ri.scale(64),
+                top: ri.scale(16),
+                right: ri.scale(48),
                 color: "#e6b655",
-                fontSize: ri.scale(60),
-                lineHeight: 1,
-                pointerEvents: "none",
-                textShadow: "0 1px 4px rgba(0,0,0,0.9)",
               }}
             >
-              ★
-            </div>
+              star
+            </Icon>
           )}
         </div>
       );
