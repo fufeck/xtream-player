@@ -6,6 +6,7 @@ import ActionGuide from "@enact/sandstone/ActionGuide";
 import { useNavigate, useOutlet } from "react-router-dom";
 import ri from "@enact/ui/resolution";
 import Icon from "@enact/sandstone/Icon";
+import Image from "@enact/sandstone/Image";
 
 import { CATEGORIES } from "../config";
 import { useApp } from "../context/AppContext";
@@ -16,6 +17,7 @@ import { getFavoriteIds, toggleFavorite } from "../services/favoritesService";
 import CategoryFilter from "../components/CategoryFilter";
 import HiddenWhilePlaying from "../components/HiddenWhilePlaying";
 import { useRestoreFocusOnReturn } from "../hooks/useRestoreFocusOnReturn";
+import logoTitle from "../assets/logo-title.png";
 
 interface PosterPanelProps {
   category: CategoryType;
@@ -171,13 +173,23 @@ const PosterPanel = ({ category }: PosterPanelProps) => {
   );
 
   const title = CATEGORY_LABELS[category] || "IPTV Player";
-  const subtitle = `${filteredChannels.length} résultat${filteredChannels.length > 1 ? "s" : ""}`;
 
   return (
     <>
       <HiddenWhilePlaying hidden={!!outlet} containerId={containerId}>
         <Panel noCloseButton onBack={handleBack}>
-          <Header title={title} subtitle={subtitle} onBack={handleBack} />
+          <Header
+            title={title}
+            noSubtitle
+            onBack={handleBack}
+            slotBefore={
+              <Image
+                src={logoTitle}
+                sizing="fit"
+                style={{ width: ri.scale(320), height: ri.scale(150) }}
+              />
+            }
+          />
           <div style={{ display: "flex", height: "calc(100vh - 300px)" }}>
             <CategoryFilter
               groups={groups}

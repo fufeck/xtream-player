@@ -14,6 +14,7 @@ import { getFavoriteIds, toggleFavorite } from "../services/favoritesService";
 import CategoryFilter from "../components/CategoryFilter";
 import HiddenWhilePlaying from "../components/HiddenWhilePlaying";
 import { useRestoreFocusOnReturn } from "../hooks/useRestoreFocusOnReturn";
+import logoTitle from "../assets/logo-title.png";
 
 const CONTAINER_ID = "lives-panel";
 
@@ -167,13 +168,21 @@ const LivePanel = () => {
     ],
   );
 
-  const subtitle = `${filteredChannels.length} chaîne${filteredChannels.length > 1 ? "s" : ""}`;
-
   return (
     <>
       <HiddenWhilePlaying hidden={!!outlet} containerId={CONTAINER_ID}>
         <Panel noCloseButton onBack={handleBack}>
-          <Header title="Chaînes TV" subtitle={subtitle} onBack={handleBack} />
+          <Header
+            title="Chaînes TV"
+            onBack={handleBack}
+            slotBefore={
+              <Image
+                src={logoTitle}
+                sizing="fit"
+                style={{ width: ri.scale(320), height: ri.scale(150) }}
+              />
+            }
+          />
           <div style={{ display: "flex", height: "calc(100vh - 300px)" }}>
             <CategoryFilter
               groups={groups}

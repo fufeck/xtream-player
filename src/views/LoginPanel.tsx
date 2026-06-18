@@ -4,10 +4,13 @@ import Button from '@enact/sandstone/Button';
 import Input from '@enact/sandstone/Input';
 import Spinner from '@enact/sandstone/Spinner';
 import BodyText from '@enact/sandstone/BodyText';
+import Image from '@enact/sandstone/Image';
 import { useNavigate } from 'react-router-dom';
+import ri from '@enact/ui/resolution';
 
 import { validateCredentials } from '../services/xtreamApi';
 import { saveCredentials, getCredentials } from '../services/credentialsService';
+import logoTitle from '../assets/logo-title.png';
 
 const LoginPanel = () => {
   const navigate = useNavigate();
@@ -54,7 +57,16 @@ const LoginPanel = () => {
 
   return (
     <Panel noCloseButton>
-      <Header title="IPTV Player" subtitle="Connexion" />
+      <Header
+        subtitle="Connexion"
+        slotBefore={
+          <Image
+            src={logoTitle}
+            sizing="fit"
+            style={{ width: ri.scale(320), height: ri.scale(150) }}
+          />
+        }
+      />
 
       {loading && (
         <div

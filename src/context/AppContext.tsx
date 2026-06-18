@@ -1,6 +1,6 @@
-import { createContext, useCallback, useContext, useState } from 'react';
-import { loadPlaylist } from '../services/playlistService';
-import { AppContextValue, Channel } from '../types';
+import { createContext, useCallback, useContext, useState } from "react";
+import { loadPlaylist } from "../services/playlistService";
+import { AppContextValue, Channel } from "../types";
 
 const AppContext = createContext<AppContextValue | null>(null);
 
@@ -13,8 +13,14 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     setLoading(true);
     setError(null);
     loadPlaylist()
-      .then((data) => { setChannels(data); setLoading(false); })
-      .catch((err: Error) => { setError(err.message); setLoading(false); });
+      .then((data) => {
+        setChannels(data);
+        setLoading(false);
+      })
+      .catch((err: Error) => {
+        setError(err.message);
+        setLoading(false);
+      });
   }, []);
 
   return (
@@ -26,6 +32,6 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
 
 export function useApp(): AppContextValue {
   const ctx = useContext(AppContext);
-  if (!ctx) throw new Error('useApp must be used within AppProvider');
+  if (!ctx) throw new Error("useApp must be used within AppProvider");
   return ctx;
 }

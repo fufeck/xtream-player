@@ -5,7 +5,9 @@ import Item from '@enact/sandstone/Item';
 import Heading from '@enact/sandstone/Heading';
 import Spinner from '@enact/sandstone/Spinner';
 import BodyText from '@enact/sandstone/BodyText';
+import Image from '@enact/sandstone/Image';
 import { useNavigate, useOutlet, useParams } from 'react-router-dom';
+import ri from '@enact/ui/resolution';
 
 import { loadSeriesInfo } from '../services/playlistService';
 import { buildEpisodeUrl } from '../services/xtreamApi';
@@ -13,6 +15,7 @@ import { useApp } from '../context/AppContext';
 import { XtreamSeriesInfo } from '../types';
 import HiddenWhilePlaying from '../components/HiddenWhilePlaying';
 import { useRestoreFocusOnReturn } from '../hooks/useRestoreFocusOnReturn';
+import logoTitle from '../assets/logo-title.png';
 
 const CONTAINER_ID = 'serie-panel';
 
@@ -102,7 +105,17 @@ const SeriePanel = () => {
     <>
       <HiddenWhilePlaying hidden={!!outlet} containerId={CONTAINER_ID}>
         <Panel noCloseButton onBack={handleBack}>
-          <Header title={series ? series.name : ''} onBack={handleBack} />
+          <Header
+            title={series ? series.name : ''}
+            onBack={handleBack}
+            slotBefore={
+              <Image
+                src={logoTitle}
+                sizing="fit"
+                style={{ width: ri.scale(320), height: ri.scale(150) }}
+              />
+            }
+          />
 
           {loading && (
             <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: 200 }}>

@@ -66,8 +66,11 @@ const HomeGate = () => {
   return <HomePanel />;
 };
 
-const AppBase = (props: React.HTMLAttributes<HTMLDivElement>) => (
-  <div {...props} className={css.app}>
+const AppBase = ({
+  className,
+  ...rest
+}: React.HTMLAttributes<HTMLDivElement>) => (
+  <div {...rest} className={[className, css.app].filter(Boolean).join(" ")}>
     <AppProvider>
       <HashRouter>
         <Routes>
