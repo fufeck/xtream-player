@@ -9,7 +9,6 @@ import Spotlight from '@enact/spotlight';
 
 import { CATEGORIES } from '../config';
 import { useApp } from '../context/AppContext';
-import { clearCredentials } from '../services/credentialsService';
 import { Category, CategoryType } from '../types';
 
 const CATEGORY_ROUTES: Record<CategoryType, string> = {
@@ -68,7 +67,6 @@ const HomePanel = () => {
   }, [loading, error]);
 
   const handleLogout = useCallback(() => {
-    clearCredentials();
     navigate('/login', { replace: true });
   }, [navigate]);
 

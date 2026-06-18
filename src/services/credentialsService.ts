@@ -17,7 +17,3 @@ export function getCredentials(): Credentials | null {
     return null;
   }
 }
-
-export function clearCredentials(): void {
-  localStorage.removeItem(KEY);
-}

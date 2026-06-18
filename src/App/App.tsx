@@ -27,22 +27,24 @@ const SerieRoute = () => {
   return <SeriePanel key={series_id} />;
 };
 
-const AuthGate = () => {
-  const [target, setTarget] = useState<string | null>(null);
+const HomeGate = () => {
+  const [status, setStatus] = useState<"checking" | "ok" | "invalid">(
+    "checking",
+  );
 
   useEffect(() => {
     const c = getCredentials();
     Promise.resolve()
       .then(() => {
-        if (!c) return "/login";
-        return validateCredentials(c.host, c.username, c.password)
-          .then((ok) => (ok ? "/home" : "/login"))
-          .catch(() => "/login");
+        if (!c) return false;
+        return validateCredentials(c.host, c.username, c.password).catch(
+          () => false,
+        );
       })
-      .then((dest) => setTarget(dest));
+      .then((ok) => setStatus(ok ? "ok" : "invalid"));
   }, []);
 
-  if (!target) {
+  if (status === "checking") {
     return (
       <div
         style={{
@@ -56,7 +58,12 @@ const AuthGate = () => {
       </div>
     );
   }
-  return <Navigate to={target} replace />;
+
+  if (status === "invalid") {
+    return <Navigate to="/login" replace />;
+  }
+
+  return <HomePanel />;
 };
 
 const AppBase = (props: React.HTMLAttributes<HTMLDivElement>) => (
@@ -64,9 +71,9 @@ const AppBase = (props: React.HTMLAttributes<HTMLDivElement>) => (
     <AppProvider>
       <HashRouter>
         <Routes>
-          <Route path="/" element={<AuthGate />} />
+          <Route path="/" element={<Navigate to="/home" replace />} />
           <Route path="/login" element={<LoginPanel />} />
-          <Route path="/home" element={<HomePanel />} />
+          <Route path="/home" element={<HomeGate />} />
           <Route path="/lives" element={<LivePanel />}>
             <Route
               path="player/:stream_id"
