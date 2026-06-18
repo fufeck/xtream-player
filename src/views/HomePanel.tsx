@@ -2,12 +2,14 @@ import { useCallback } from "react";
 import { Panel } from "@enact/sandstone/Panels";
 import Button from "@enact/sandstone/Button";
 import Image from "@enact/sandstone/Image";
+import IconItem from "@enact/sandstone/IconItem";
 import { useNavigate } from "react-router-dom";
 import ri from "@enact/ui/resolution";
 
 import { CATEGORIES } from "../config";
 import { Category, CategoryType } from "../types";
 import logoTitle from "../assets/logo-title.png";
+import css from "./HomePanel.module.css";
 
 const CATEGORY_ROUTES: Record<CategoryType, string> = {
   lives: "/lives",
@@ -16,6 +18,8 @@ const CATEGORY_ROUTES: Record<CategoryType, string> = {
 };
 
 const FIRST_CARD_ID = "home-first-card";
+const CARD_SIZE = ri.scale(240);
+const ICON_SIZE = ri.scale(120);
 
 interface CategoryCardProps {
   category: Category;
@@ -34,15 +38,18 @@ const CategoryCard = ({
   );
 
   return (
-    <Button
-      size="large"
-      icon={category.icon}
+    <IconItem
+      background="#2b2b2b"
+      css={{ content: css.cardContent, label: css.labelItem }}
+      image={{
+        src: category.icon,
+        size: { width: ICON_SIZE, height: ICON_SIZE },
+      }}
+      label={category.label}
       onClick={handleClick}
       spotlightId={spotlightId}
-      style={{ width: ri.scale(380), height: ri.scale(200) }}
-    >
-      {category.label}
-    </Button>
+      style={{ width: CARD_SIZE, height: CARD_SIZE }}
+    />
   );
 };
 
