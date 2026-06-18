@@ -1,9 +1,9 @@
-import { useMemo, useCallback, useState, useRef } from "react";
+import { useMemo, useCallback, useEffect, useState, useRef } from "react";
 import { Panel, Header } from "@enact/sandstone/Panels";
 import { VirtualGridList } from "@enact/sandstone/VirtualList";
 import BodyText from "@enact/sandstone/BodyText";
 import ActionGuide from "@enact/sandstone/ActionGuide";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useOutlet } from "react-router-dom";
 import ri from "@enact/ui/resolution";
 import Icon from "@enact/sandstone/Icon";
 
@@ -14,6 +14,8 @@ import ImageItem from "@enact/sandstone/ImageItem";
 import { extractGroups } from "../services/playlistService";
 import { getFavoriteIds, toggleFavorite } from "../services/favoritesService";
 import CategoryFilter from "../components/CategoryFilter";
+import HiddenWhilePlaying from "../components/HiddenWhilePlaying";
+import { useRestoreFocusOnReturn } from "../hooks/useRestoreFocusOnReturn";
 
 interface PosterPanelProps {
   category: CategoryType;
@@ -26,6 +28,8 @@ type ItemRendererArgs = { index: number; style: React.CSSProperties } & Record<
 
 const FAVORITES_GROUP = "__favorites__";
 
+type ScrollTo = (opts: { align?: string; animate?: boolean }) => void;
+
 const CATEGORY_LABELS = Object.fromEntries(
   CATEGORIES.map((c) => [c.id, c.label]),
 );
@@ -36,17 +40,29 @@ function normalize(str: string): string {
 
 const PosterPanel = ({ category }: PosterPanelProps) => {
   const navigate = useNavigate();
+  const outlet = useOutlet();
+  const containerId = `poster-panel-${category}`;
+  useRestoreFocusOnReturn(containerId, !!outlet);
   const { channels } = useApp();
   const [query, setQuery] = useState("");
   const [selectedGroup, setSelectedGroup] = useState<string | null>(null);
   const [favoritesVersion, setFavoritesVersion] = useState(0);
   const longPressTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const longPressActiveRef = useRef(false);
+  const scrollToRef = useRef<ScrollTo | null>(null);
+
+  useEffect(() => {
+    scrollToRef.current?.({ align: "top", animate: false });
+  }, [selectedGroup]);
 
   const handleQueryChange = useCallback(
     ({ value }: { value: string }) => setQuery(value),
     [],
   );
+
+  const handleScrollTo = useCallback((fn: ScrollTo) => {
+    scrollToRef.current = fn;
+  }, []);
 
   const groups = useMemo(
     () => extractGroups(channels.filter((c) => c.category === category)),
@@ -158,37 +174,43 @@ const PosterPanel = ({ category }: PosterPanelProps) => {
   const subtitle = `${filteredChannels.length} résultat${filteredChannels.length > 1 ? "s" : ""}`;
 
   return (
-    <Panel noCloseButton onBack={handleBack}>
-      <Header title={title} subtitle={subtitle} onBack={handleBack} />
-      <div style={{ display: "flex", height: "calc(100vh - 300px)" }}>
-        <CategoryFilter
-          groups={groups}
-          selectedGroup={selectedGroup}
-          onSelectGroup={setSelectedGroup}
-          query={query}
-          onQueryChange={handleQueryChange}
-        />
-        <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
-          {filteredChannels.length === 0 && (
-            <div style={{ padding: "2rem" }}>
-              <BodyText centered>Aucun contenu trouvé.</BodyText>
-            </div>
-          )}
-          {filteredChannels.length > 0 && (
-            <VirtualGridList
-              dataSize={filteredChannels.length}
-              itemRenderer={renderItem}
-              itemSize={{ minWidth: ri.scale(500), minHeight: ri.scale(750) }}
-              spacing={ri.scale(8)}
-              style={{ height: "calc(100vh - 400px)" }}
+    <>
+      <HiddenWhilePlaying hidden={!!outlet} containerId={containerId}>
+        <Panel noCloseButton onBack={handleBack}>
+          <Header title={title} subtitle={subtitle} onBack={handleBack} />
+          <div style={{ display: "flex", height: "calc(100vh - 300px)" }}>
+            <CategoryFilter
+              groups={groups}
+              selectedGroup={selectedGroup}
+              onSelectGroup={setSelectedGroup}
+              query={query}
+              onQueryChange={handleQueryChange}
             />
-          )}
-          <ActionGuide icon="arrowlargedown">
-            Naviguer avec les touches directionnelles
-          </ActionGuide>
-        </div>
-      </div>
-    </Panel>
+            <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
+              {filteredChannels.length === 0 && (
+                <div style={{ padding: "2rem" }}>
+                  <BodyText centered>Aucun contenu trouvé.</BodyText>
+                </div>
+              )}
+              {filteredChannels.length > 0 && (
+                <VirtualGridList
+                  dataSize={filteredChannels.length}
+                  itemRenderer={renderItem}
+                  itemSize={{ minWidth: ri.scale(500), minHeight: ri.scale(750) }}
+                  spacing={ri.scale(8)}
+                  style={{ height: "calc(100vh - 400px)" }}
+                  cbScrollTo={handleScrollTo}
+                />
+              )}
+              <ActionGuide icon="arrowlargedown">
+                Naviguer avec les touches directionnelles
+              </ActionGuide>
+            </div>
+          </div>
+        </Panel>
+      </HiddenWhilePlaying>
+      {outlet}
+    </>
   );
 };
 

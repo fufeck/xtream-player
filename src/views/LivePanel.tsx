@@ -1,17 +1,21 @@
-import { useMemo, useCallback, useState, useRef } from "react";
+import { useMemo, useCallback, useEffect, useState, useRef } from "react";
 import { Panel, Header } from "@enact/sandstone/Panels";
 import { VirtualList } from "@enact/sandstone/VirtualList";
 import Item from "@enact/sandstone/Item";
 import BodyText from "@enact/sandstone/BodyText";
 import Icon from "@enact/sandstone/Icon";
 import Image from "@enact/sandstone/Image";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useOutlet } from "react-router-dom";
 import ri from "@enact/ui/resolution";
 
 import { useApp } from "../context/AppContext";
 import { extractGroups } from "../services/playlistService";
 import { getFavoriteIds, toggleFavorite } from "../services/favoritesService";
 import CategoryFilter from "../components/CategoryFilter";
+import HiddenWhilePlaying from "../components/HiddenWhilePlaying";
+import { useRestoreFocusOnReturn } from "../hooks/useRestoreFocusOnReturn";
+
+const CONTAINER_ID = "lives-panel";
 
 type ItemRendererArgs = { index: number; style: React.CSSProperties } & Record<
   string,
@@ -20,23 +24,36 @@ type ItemRendererArgs = { index: number; style: React.CSSProperties } & Record<
 
 const FAVORITES_GROUP = "__favorites__";
 
+type ScrollTo = (opts: { align?: string; animate?: boolean }) => void;
+
 function normalize(str: string): string {
   return str.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "");
 }
 
 const LivePanel = () => {
   const navigate = useNavigate();
+  const outlet = useOutlet();
+  useRestoreFocusOnReturn(CONTAINER_ID, !!outlet);
   const { channels } = useApp();
   const [query, setQuery] = useState("");
   const [selectedGroup, setSelectedGroup] = useState<string | null>(null);
   const [favoritesVersion, setFavoritesVersion] = useState(0);
   const longPressTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const longPressActiveRef = useRef(false);
+  const scrollToRef = useRef<ScrollTo | null>(null);
+
+  useEffect(() => {
+    scrollToRef.current?.({ align: "top", animate: false });
+  }, [selectedGroup]);
 
   const handleQueryChange = useCallback(
     ({ value }: { value: string }) => setQuery(value),
     [],
   );
+
+  const handleScrollTo = useCallback((fn: ScrollTo) => {
+    scrollToRef.current = fn;
+  }, []);
 
   const groups = useMemo(
     () => extractGroups(channels.filter((c) => c.category === "lives")),
@@ -153,33 +170,39 @@ const LivePanel = () => {
   const subtitle = `${filteredChannels.length} chaîne${filteredChannels.length > 1 ? "s" : ""}`;
 
   return (
-    <Panel noCloseButton onBack={handleBack}>
-      <Header title="Chaînes TV" subtitle={subtitle} onBack={handleBack} />
-      <div style={{ display: "flex", height: "calc(100vh - 300px)" }}>
-        <CategoryFilter
-          groups={groups}
-          selectedGroup={selectedGroup}
-          onSelectGroup={setSelectedGroup}
-          query={query}
-          onQueryChange={handleQueryChange}
-        />
-        <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
-          {filteredChannels.length === 0 && (
-            <div style={{ padding: "2rem" }}>
-              <BodyText centered>Aucune chaîne trouvée.</BodyText>
-            </div>
-          )}
-          {filteredChannels.length > 0 && (
-            <VirtualList
-              dataSize={filteredChannels.length}
-              itemRenderer={renderItem}
-              itemSize={ri.scale(96)}
-              style={{ height: "calc(100vh - 400px)" }}
+    <>
+      <HiddenWhilePlaying hidden={!!outlet} containerId={CONTAINER_ID}>
+        <Panel noCloseButton onBack={handleBack}>
+          <Header title="Chaînes TV" subtitle={subtitle} onBack={handleBack} />
+          <div style={{ display: "flex", height: "calc(100vh - 300px)" }}>
+            <CategoryFilter
+              groups={groups}
+              selectedGroup={selectedGroup}
+              onSelectGroup={setSelectedGroup}
+              query={query}
+              onQueryChange={handleQueryChange}
             />
-          )}
-        </div>
-      </div>
-    </Panel>
+            <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
+              {filteredChannels.length === 0 && (
+                <div style={{ padding: "2rem" }}>
+                  <BodyText centered>Aucune chaîne trouvée.</BodyText>
+                </div>
+              )}
+              {filteredChannels.length > 0 && (
+                <VirtualList
+                  dataSize={filteredChannels.length}
+                  itemRenderer={renderItem}
+                  itemSize={ri.scale(96)}
+                  style={{ height: "calc(100vh - 400px)" }}
+                  cbScrollTo={handleScrollTo}
+                />
+              )}
+            </div>
+          </div>
+        </Panel>
+      </HiddenWhilePlaying>
+      {outlet}
+    </>
   );
 };
 

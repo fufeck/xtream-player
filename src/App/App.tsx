@@ -67,22 +67,26 @@ const AppBase = (props: React.HTMLAttributes<HTMLDivElement>) => (
           <Route path="/" element={<AuthGate />} />
           <Route path="/login" element={<LoginPanel />} />
           <Route path="/home" element={<HomePanel />} />
-          <Route path="/lives" element={<LivePanel />} />
-          <Route path="/movies" element={<PosterPanel category="movies" />} />
-          <Route path="/series" element={<PosterPanel category="series" />} />
-          <Route path="/series/:series_id" element={<SerieRoute />} />
-          <Route
-            path="/lives/player/:stream_id"
-            element={<PlayerPanel type="lives" />}
-          />
-          <Route
-            path="/movies/player/:stream_id"
-            element={<PlayerPanel type="movies" />}
-          />
-          <Route
-            path="/series/player/:stream_id"
-            element={<PlayerPanel type="series" />}
-          />
+          <Route path="/lives" element={<LivePanel />}>
+            <Route
+              path="player/:stream_id"
+              element={<PlayerPanel type="lives" />}
+            />
+          </Route>
+          <Route path="/movies" element={<PosterPanel category="movies" />}>
+            <Route
+              path="player/:stream_id"
+              element={<PlayerPanel type="movies" />}
+            />
+          </Route>
+          <Route path="/series" element={<PosterPanel category="series" />}>
+            <Route path=":series_id" element={<SerieRoute />}>
+              <Route
+                path="player/:stream_id"
+                element={<PlayerPanel type="series" />}
+              />
+            </Route>
+          </Route>
         </Routes>
       </HashRouter>
     </AppProvider>

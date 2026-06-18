@@ -53,12 +53,23 @@ No cache — playlist is always fetched fresh on `/home` mount.
 | `/login` | `LoginPanel` |
 | `/home` | `HomePanel` — 3 category cards + logout |
 | `/lives` | `LivePanel` — searchable list of live channels |
+| `/lives/player/:stream_id` | `PlayerPanel type="lives"` — nested under `/lives` |
 | `/movies` | `PosterPanel category="movies"` — grid of movies |
+| `/movies/player/:stream_id` | `PlayerPanel type="movies"` — nested under `/movies` |
 | `/series` | `PosterPanel category="series"` — grid of series |
-| `/series/:series_id` | `SeriePanel` — episode list grouped by season |
-| `/lives/player/:stream_id` | `PlayerPanel type="lives"` |
-| `/movies/player/:stream_id` | `PlayerPanel type="movies"` |
-| `/series/player/:stream_id` | `PlayerPanel type="series"` |
+| `/series/:series_id` | `SeriePanel` — episode list grouped by season, nested under `/series` |
+| `/series/:series_id/player/:stream_id` | `PlayerPanel type="series"` — nested under `/series/:series_id` |
+
+#### Nested player routes
+
+Players are declared as **child `<Route>`s** of their list/detail page in `src/App/App.tsx`, not as sibling top-level routes. This keeps the parent component (`LivePanel`, `PosterPanel`, `SeriePanel`) mounted while its player is open, so React state (search query, selected group, loaded data) and DOM scroll position survive a back-navigation instead of resetting.
+
+Each parent panel:
+- Reads `useOutlet()` from `react-router-dom` to know whether a child route (its player, or for `/series`, the deeper detail/player) is active.
+- Wraps its own `<Panel>` JSX in `HiddenWhilePlaying` (`src/components/HiddenWhilePlaying.tsx`), which hides it (`display: none` + `spotlightDisabled`) while the outlet is active — the player itself is a fullscreen `position: fixed` overlay rendered as `{outlet}` alongside it.
+- Calls `useRestoreFocusOnReturn(containerId, !!outlet)` (`src/hooks/useRestoreFocusOnReturn.ts`) to re-focus the panel's Spotlight container (`Spotlight.focus(containerId)`) at the exact moment the outlet closes — `HiddenWhilePlaying`'s container uses `enterTo: 'last-focused'`, so this restores focus to the exact item that was previously selected.
+
+`SeriePanel` reaches its player via a **relative** `navigate('player/:id', { state })` (resolved against the route path `/series/:series_id`), not an absolute path — this is what places the episode player under the series detail page instead of under `/series` directly.
 
 ### Key types (`src/types/index.ts`)
 

@@ -5,12 +5,16 @@ import Item from '@enact/sandstone/Item';
 import Heading from '@enact/sandstone/Heading';
 import Spinner from '@enact/sandstone/Spinner';
 import BodyText from '@enact/sandstone/BodyText';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useOutlet, useParams } from 'react-router-dom';
 
 import { loadSeriesInfo } from '../services/playlistService';
 import { buildEpisodeUrl } from '../services/xtreamApi';
 import { useApp } from '../context/AppContext';
 import { XtreamSeriesInfo } from '../types';
+import HiddenWhilePlaying from '../components/HiddenWhilePlaying';
+import { useRestoreFocusOnReturn } from '../hooks/useRestoreFocusOnReturn';
+
+const CONTAINER_ID = 'serie-panel';
 
 interface EpisodeData {
   id: string;
@@ -43,6 +47,8 @@ const EpisodeRow = ({ episode, onPlay }: EpisodeRowProps) => {
 
 const SeriePanel = () => {
   const navigate = useNavigate();
+  const outlet = useOutlet();
+  useRestoreFocusOnReturn(CONTAINER_ID, !!outlet);
   const { series_id } = useParams<{ series_id: string }>();
   const { channels } = useApp();
 
@@ -87,46 +93,51 @@ const SeriePanel = () => {
 
   const handlePlay = useCallback(
     (episode: EpisodeData) => {
-      navigate(`/series/player/${episode.id}`, { state: { url: episode.url, name: episode.name } });
+      navigate(`player/${episode.id}`, { state: { url: episode.url, name: episode.name } });
     },
     [navigate],
   );
 
   return (
-    <Panel noCloseButton onBack={handleBack}>
-      <Header title={series ? series.name : ''} onBack={handleBack} />
+    <>
+      <HiddenWhilePlaying hidden={!!outlet} containerId={CONTAINER_ID}>
+        <Panel noCloseButton onBack={handleBack}>
+          <Header title={series ? series.name : ''} onBack={handleBack} />
 
-      {loading && (
-        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: 200 }}>
-          <Spinner>Chargement des épisodes…</Spinner>
-        </div>
-      )}
+          {loading && (
+            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: 200 }}>
+              <Spinner>Chargement des épisodes…</Spinner>
+            </div>
+          )}
 
-      {!loading && error && (
-        <div style={{ padding: '2rem' }}>
-          <BodyText centered>{`Erreur : ${error}`}</BodyText>
-        </div>
-      )}
+          {!loading && error && (
+            <div style={{ padding: '2rem' }}>
+              <BodyText centered>{`Erreur : ${error}`}</BodyText>
+            </div>
+          )}
 
-      {!loading && !error && seasons.length === 0 && (
-        <div style={{ padding: '2rem' }}>
-          <BodyText centered>Aucun épisode disponible.</BodyText>
-        </div>
-      )}
+          {!loading && !error && seasons.length === 0 && (
+            <div style={{ padding: '2rem' }}>
+              <BodyText centered>Aucun épisode disponible.</BodyText>
+            </div>
+          )}
 
-      {!loading && !error && seasons.length > 0 && (
-        <Scroller direction="vertical" style={{ height: 'calc(100vh - 280px)' }}>
-          {seasons.map((season) => (
-            <Fragment key={season.num}>
-              <Heading showLine>{season.name}</Heading>
-              {season.episodes.map((ep) => (
-                <EpisodeRow key={ep.id} episode={ep} onPlay={handlePlay} />
+          {!loading && !error && seasons.length > 0 && (
+            <Scroller direction="vertical" style={{ height: 'calc(100vh - 280px)' }}>
+              {seasons.map((season) => (
+                <Fragment key={season.num}>
+                  <Heading showLine>{season.name}</Heading>
+                  {season.episodes.map((ep) => (
+                    <EpisodeRow key={ep.id} episode={ep} onPlay={handlePlay} />
+                  ))}
+                </Fragment>
               ))}
-            </Fragment>
-          ))}
-        </Scroller>
-      )}
-    </Panel>
+            </Scroller>
+          )}
+        </Panel>
+      </HiddenWhilePlaying>
+      {outlet}
+    </>
   );
 };
 
