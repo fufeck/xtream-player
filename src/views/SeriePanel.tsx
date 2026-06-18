@@ -1,23 +1,23 @@
-import { useState, useEffect, useCallback, useMemo, Fragment } from 'react';
-import { Panel, Header } from '@enact/sandstone/Panels';
-import Scroller from '@enact/sandstone/Scroller';
-import Item from '@enact/sandstone/Item';
-import Heading from '@enact/sandstone/Heading';
-import Spinner from '@enact/sandstone/Spinner';
-import BodyText from '@enact/sandstone/BodyText';
-import Image from '@enact/sandstone/Image';
-import { useNavigate, useOutlet, useParams } from 'react-router-dom';
-import ri from '@enact/ui/resolution';
+import { useState, useEffect, useCallback, useMemo, Fragment } from "react";
+import { Panel, Header } from "@enact/sandstone/Panels";
+import Scroller from "@enact/sandstone/Scroller";
+import Item from "@enact/sandstone/Item";
+import Heading from "@enact/sandstone/Heading";
+import Spinner from "@enact/sandstone/Spinner";
+import BodyText from "@enact/sandstone/BodyText";
+import Image from "@enact/sandstone/Image";
+import { useNavigate, useOutlet, useParams } from "react-router-dom";
+import ri from "@enact/ui/resolution";
 
-import { loadSeriesInfo } from '../services/playlistService';
-import { buildEpisodeUrl } from '../services/xtreamApi';
-import { useApp } from '../context/AppContext';
-import { XtreamSeriesInfo } from '../types';
-import HiddenWhilePlaying from '../components/HiddenWhilePlaying';
-import { useRestoreFocusOnReturn } from '../hooks/useRestoreFocusOnReturn';
-import logoTitle from '../assets/logo-title.png';
+import { loadSeriesInfo } from "../services/playlistService";
+import { buildEpisodeUrl } from "../services/xtreamApi";
+import { useApp } from "../context/AppContext";
+import { XtreamSeriesInfo } from "../types";
+import HiddenWhilePlaying from "../components/HiddenWhilePlaying";
+import { useRestoreFocusOnReturn } from "../hooks/useRestoreFocusOnReturn";
+import logoTitle from "../assets/logo-title.png";
 
-const CONTAINER_ID = 'serie-panel';
+const CONTAINER_ID = "serie-panel";
 
 interface EpisodeData {
   id: string;
@@ -36,10 +36,14 @@ interface EpisodeRowProps {
   onPlay: (episode: EpisodeData) => void;
 }
 
-function formatEpisodeTitle(rawTitle: string, seasonNum: string, episodeNum: number): string {
+function formatEpisodeTitle(
+  rawTitle: string,
+  seasonNum: string,
+  episodeNum: number,
+): string {
   const match = rawTitle.match(/S\d+E\d+.*/i);
   if (match) return match[0].trim();
-  const code = `S${seasonNum.padStart(2, '0')}E${String(episodeNum).padStart(2, '0')}`;
+  const code = `S${seasonNum.padStart(2, "0")}E${String(episodeNum).padStart(2, "0")}`;
   return rawTitle ? `${code} - ${rawTitle}` : code;
 }
 
@@ -56,7 +60,11 @@ const SeriePanel = () => {
   const { channels } = useApp();
 
   const series = useMemo(
-    () => channels.find((c) => c.category === 'series' && String(c.series_id) === String(series_id)),
+    () =>
+      channels.find(
+        (c) =>
+          c.category === "series" && String(c.series_id) === String(series_id),
+      ),
     [channels, series_id],
   );
 
@@ -86,7 +94,7 @@ const SeriePanel = () => {
         name: `Saison ${num}`,
         episodes: (seriesInfo.episodes[num] || []).map((ep) => ({
           id: ep.id,
-          name: formatEpisodeTitle(ep.title || '', num, ep.episode_num),
+          name: formatEpisodeTitle(ep.title || "", num, ep.episode_num),
           url: buildEpisodeUrl(ep.id, ep.container_extension),
         })),
       }));
@@ -96,7 +104,9 @@ const SeriePanel = () => {
 
   const handlePlay = useCallback(
     (episode: EpisodeData) => {
-      navigate(`player/${episode.id}`, { state: { url: episode.url, name: episode.name } });
+      navigate(`player/${episode.id}`, {
+        state: { url: episode.url, name: episode.name },
+      });
     },
     [navigate],
   );
@@ -106,7 +116,7 @@ const SeriePanel = () => {
       <HiddenWhilePlaying hidden={!!outlet} containerId={CONTAINER_ID}>
         <Panel noCloseButton onBack={handleBack}>
           <Header
-            title={series ? series.name : ''}
+            title={series ? series.name : ""}
             onBack={handleBack}
             slotBefore={
               <Image
@@ -118,25 +128,35 @@ const SeriePanel = () => {
           />
 
           {loading && (
-            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: 200 }}>
-              <Spinner>Chargement des épisodes…</Spinner>
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                height: 200,
+              }}
+            >
+              <Spinner>Chargement…</Spinner>
             </div>
           )}
 
           {!loading && error && (
-            <div style={{ padding: '2rem' }}>
+            <div style={{ padding: "2rem" }}>
               <BodyText centered>{`Erreur : ${error}`}</BodyText>
             </div>
           )}
 
           {!loading && !error && seasons.length === 0 && (
-            <div style={{ padding: '2rem' }}>
+            <div style={{ padding: "2rem" }}>
               <BodyText centered>Aucun épisode disponible.</BodyText>
             </div>
           )}
 
           {!loading && !error && seasons.length > 0 && (
-            <Scroller direction="vertical" style={{ height: 'calc(100vh - 280px)' }}>
+            <Scroller
+              direction="vertical"
+              style={{ height: "calc(100vh - 280px)" }}
+            >
               {seasons.map((season) => (
                 <Fragment key={season.num}>
                   <Heading showLine>{season.name}</Heading>

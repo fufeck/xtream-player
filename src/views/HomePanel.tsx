@@ -1,12 +1,9 @@
-import { useCallback, useMemo, useEffect } from "react";
+import { useCallback, useMemo } from "react";
 import { Panel } from "@enact/sandstone/Panels";
 import Button from "@enact/sandstone/Button";
-import Spinner from "@enact/sandstone/Spinner";
-import BodyText from "@enact/sandstone/BodyText";
 import Image from "@enact/sandstone/Image";
 import { useNavigate } from "react-router-dom";
 import ri from "@enact/ui/resolution";
-import Spotlight from "@enact/spotlight";
 
 import { CATEGORIES } from "../config";
 import { useApp } from "../context/AppContext";
@@ -23,14 +20,12 @@ const FIRST_CARD_ID = "home-first-card";
 
 interface CategoryCardProps {
   category: Category;
-  count: number | null;
   onClick: (id: CategoryType) => void;
   spotlightId?: string;
 }
 
 const CategoryCard = ({
   category,
-  count,
   onClick,
   spotlightId,
 }: CategoryCardProps) => {
@@ -40,47 +35,21 @@ const CategoryCard = ({
   );
 
   return (
-    <div
-      style={{
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        gap: 12,
-      }}
+    <Button
+      size="large"
+      icon={category.icon}
+      onClick={handleClick}
+      spotlightId={spotlightId}
+      style={{ width: ri.scale(380), height: ri.scale(200) }}
     >
-      <Button
-        size="large"
-        icon={category.icon}
-        onClick={handleClick}
-        spotlightId={spotlightId}
-        style={{ width: ri.scale(380), height: ri.scale(200) }}
-      >
-        {category.label}
-      </Button>
-      {count !== null && (
-        <span style={{ color: "rgba(255,255,255,0.65)", fontSize: 24 }}>
-          {count > 0
-            ? `${count.toLocaleString("fr")} éléments`
-            : "Aucun élément"}
-        </span>
-      )}
-    </div>
+      {category.label}
+    </Button>
   );
 };
 
 const HomePanel = () => {
   const navigate = useNavigate();
-  const { channels, loading, error, refresh } = useApp();
-
-  useEffect(() => {
-    refresh();
-  }, [refresh]);
-
-  useEffect(() => {
-    if (!loading && !error) {
-      Spotlight.focus(FIRST_CARD_ID);
-    }
-  }, [loading, error]);
+  const { channels } = useApp();
 
   const handleLogout = useCallback(() => {
     navigate("/login", { replace: true });
@@ -93,18 +62,6 @@ const HomePanel = () => {
     },
     [navigate],
   );
-
-  const counts = useMemo(() => {
-    const map: Record<CategoryType, number> = {
-      lives: 0,
-      movies: 0,
-      series: 0,
-    };
-    channels.forEach((ch) => {
-      map[ch.category]++;
-    });
-    return map;
-  }, [channels]);
 
   return (
     <Panel noCloseButton>
@@ -137,37 +94,14 @@ const HomePanel = () => {
             gap: 48,
           }}
         >
-          {loading && <Spinner>Chargement de la playlist…</Spinner>}
-
-          {!loading && error && (
-            <div
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                justifyContent: "center",
-                alignItems: "center",
-                gap: ri.scale(24),
-                height: "calc(100vh - 200px)",
-              }}
-            >
-              <BodyText
-                centered
-              >{`Impossible de charger la playlist : ${error}`}</BodyText>
-              <Button onClick={refresh}>Réessayer</Button>
-            </div>
-          )}
-
-          {!loading &&
-            !error &&
-            CATEGORIES.map((cat, i) => (
-              <CategoryCard
-                key={cat.id}
-                category={cat}
-                count={counts[cat.id] ?? null}
-                onClick={handleSelect}
-                spotlightId={i === 0 ? FIRST_CARD_ID : undefined}
-              />
-            ))}
+          {CATEGORIES.map((cat, i) => (
+            <CategoryCard
+              key={cat.id}
+              category={cat}
+              onClick={handleSelect}
+              spotlightId={i === 0 ? FIRST_CARD_ID : undefined}
+            />
+          ))}
         </div>
       </div>
     </Panel>

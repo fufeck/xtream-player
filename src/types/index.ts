@@ -63,4 +63,5 @@ export interface AppContextValue {
   loading: boolean;
   error: string | null;
   refresh: () => void;
+  ensurePlaylist: () => void;
 }

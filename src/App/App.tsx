@@ -8,8 +8,10 @@ import {
   Navigate,
   useParams,
 } from "react-router-dom";
+import Image from "@enact/sandstone/Image";
+import ri from "@enact/ui/resolution";
 
-import { AppProvider } from "../context/AppContext";
+import { AppProvider, useApp } from "../context/AppContext";
 import HomePanel from "../views/HomePanel";
 import PosterPanel from "../views/PosterPanel";
 import LivePanel from "../views/LivePanel";
@@ -18,7 +20,7 @@ import PlayerPanel from "../views/PlayerPanel";
 import LoginPanel from "../views/LoginPanel";
 import { getCredentials } from "../services/credentialsService";
 import { validateCredentials } from "../services/xtreamApi";
-
+import logoTitle from "../assets/logo-title.png";
 import css from "./App.module.less";
 
 const SerieRoute = () => {
@@ -31,6 +33,7 @@ const HomeGate = () => {
   const [status, setStatus] = useState<"checking" | "ok" | "invalid">(
     "checking",
   );
+  const { ensurePlaylist } = useApp();
 
   useEffect(() => {
     const c = getCredentials();
@@ -44,17 +47,40 @@ const HomeGate = () => {
       .then((ok) => setStatus(ok ? "ok" : "invalid"));
   }, []);
 
+  useEffect(() => {
+    if (status === "ok") ensurePlaylist();
+  }, [status, ensurePlaylist]);
+
   if (status === "checking") {
     return (
       <div
         style={{
           display: "flex",
-          justifyContent: "center",
+          flexDirection: "column",
           alignItems: "center",
-          height: "100vh",
+          justifyContent: "center",
+          gap: 48,
+          height: "calc(100vh - 200px)",
+          paddingBottom: ri.scale(160),
         }}
       >
-        <Spinner>Vérification de la connexion…</Spinner>
+        <Image
+          src={logoTitle}
+          sizing="fit"
+          style={{ width: ri.scale(800), height: ri.scale(376) }}
+        />
+
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "row",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: 48,
+          }}
+        >
+          <Spinner>Chargement…</Spinner>
+        </div>
       </div>
     );
   }
