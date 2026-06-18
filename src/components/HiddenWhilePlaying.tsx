@@ -11,14 +11,14 @@ const ContainerBase = SpotlightContainerDecorator({ enterTo: 'last-focused' }, '
 const Container = ContainerBase as ComponentType<
   ComponentProps<typeof ContainerBase> & {
     children?: ReactNode;
-    containerId?: string;
+    spotlightId?: string;
     style?: CSSProperties;
   }
 >;
 
 const HiddenWhilePlaying = ({ hidden, containerId, children }: HiddenWhilePlayingProps) => (
   <Container
-    containerId={containerId}
+    spotlightId={containerId}
     spotlightDisabled={hidden}
     style={{
       position: 'absolute',

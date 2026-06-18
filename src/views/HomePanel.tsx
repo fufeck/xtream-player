@@ -1,4 +1,4 @@
-import { useCallback, useMemo } from "react";
+import { useCallback } from "react";
 import { Panel } from "@enact/sandstone/Panels";
 import Button from "@enact/sandstone/Button";
 import Image from "@enact/sandstone/Image";
@@ -6,7 +6,6 @@ import { useNavigate } from "react-router-dom";
 import ri from "@enact/ui/resolution";
 
 import { CATEGORIES } from "../config";
-import { useApp } from "../context/AppContext";
 import { Category, CategoryType } from "../types";
 import logoTitle from "../assets/logo-title.png";
 
@@ -49,7 +48,6 @@ const CategoryCard = ({
 
 const HomePanel = () => {
   const navigate = useNavigate();
-  const { channels } = useApp();
 
   const handleLogout = useCallback(() => {
     navigate("/login", { replace: true });
