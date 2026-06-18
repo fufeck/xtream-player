@@ -1,11 +1,14 @@
 import { useCallback } from "react";
 import { Panel } from "@enact/sandstone/Panels";
+import BodyText from "@enact/sandstone/BodyText";
 import Button from "@enact/sandstone/Button";
 import Image from "@enact/sandstone/Image";
 import IconItem from "@enact/sandstone/IconItem";
+import Spinner from "@enact/sandstone/Spinner";
 import { useNavigate } from "react-router-dom";
 import ri from "@enact/ui/resolution";
 
+import { useApp } from "../context/AppContext";
 import { CATEGORIES } from "../config";
 import { Category, CategoryType } from "../types";
 import logoTitle from "../assets/logo-title.png";
@@ -55,10 +58,15 @@ const CategoryCard = ({
 
 const HomePanel = () => {
   const navigate = useNavigate();
+  const { refresh, loading, error } = useApp();
 
   const handleLogout = useCallback(() => {
     navigate("/login", { replace: true });
   }, [navigate]);
+
+  const handleRefresh = useCallback(() => {
+    refresh();
+  }, [refresh]);
 
   const handleSelect = useCallback(
     (id: CategoryType) => {
@@ -70,9 +78,6 @@ const HomePanel = () => {
 
   return (
     <Panel noCloseButton>
-      <div style={{ position: "fixed", top: 24, right: 36, zIndex: 100 }}>
-        <Button icon="logout" onClick={handleLogout} />
-      </div>
       <div
         style={{
           display: "flex",
@@ -90,24 +95,51 @@ const HomePanel = () => {
           style={{ width: ri.scale(800), height: ri.scale(376) }}
         />
 
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "row",
-            alignItems: "center",
-            justifyContent: "center",
-            gap: 48,
-          }}
-        >
-          {CATEGORIES.map((cat, i) => (
-            <CategoryCard
-              key={cat.id}
-              category={cat}
-              onClick={handleSelect}
-              spotlightId={i === 0 ? FIRST_CARD_ID : undefined}
-            />
-          ))}
-        </div>
+        {loading ? (
+          <Spinner>Chargement…</Spinner>
+        ) : (
+          <>
+            {error ? (
+              <BodyText centered>{`Erreur : ${error}`}</BodyText>
+            ) : (
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "row",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: 48,
+                }}
+              >
+                {CATEGORIES.map((cat, i) => (
+                  <CategoryCard
+                    key={cat.id}
+                    category={cat}
+                    onClick={handleSelect}
+                    spotlightId={i === 0 ? FIRST_CARD_ID : undefined}
+                  />
+                ))}
+              </div>
+            )}
+
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "row",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: 24,
+              }}
+            >
+              <Button size="small" icon="logout" onClick={handleLogout}>
+                Déconnexion
+              </Button>
+              <Button size="small" icon="refresh" onClick={handleRefresh}>
+                Actualiser la playlist
+              </Button>
+            </div>
+          </>
+        )}
       </div>
     </Panel>
   );
