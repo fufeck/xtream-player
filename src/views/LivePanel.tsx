@@ -198,14 +198,12 @@ const LivePanel = () => {
                   <BodyText centered>Aucune chaîne trouvée.</BodyText>
                 </div>
               )}
-              {filteredChannels.length > 0 && (
-                <VirtualList
-                  dataSize={filteredChannels.length}
-                  itemRenderer={renderItem}
-                  itemSize={ri.scale(96)}
-                  cbScrollTo={handleScrollTo}
-                />
-              )}
+              <VirtualList
+                dataSize={filteredChannels.length}
+                itemRenderer={renderItem}
+                itemSize={ri.scale(96)}
+                cbScrollTo={handleScrollTo}
+              />
             </div>
           </div>
         </Panel>

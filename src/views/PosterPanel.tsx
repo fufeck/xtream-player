@@ -203,18 +203,16 @@ const PosterPanel = ({ category }: PosterPanelProps) => {
                   <BodyText centered>Aucun contenu trouvé.</BodyText>
                 </div>
               )}
-              {filteredChannels.length > 0 && (
-                <VirtualGridList
-                  dataSize={filteredChannels.length}
-                  itemRenderer={renderItem}
-                  itemSize={{
-                    minWidth: ri.scale(500),
-                    minHeight: ri.scale(750),
-                  }}
-                  spacing={ri.scale(8)}
-                  cbScrollTo={handleScrollTo}
-                />
-              )}
+              <VirtualGridList
+                dataSize={filteredChannels.length}
+                itemRenderer={renderItem}
+                itemSize={{
+                  minWidth: ri.scale(500),
+                  minHeight: ri.scale(750),
+                }}
+                spacing={ri.scale(8)}
+                cbScrollTo={handleScrollTo}
+              />
             </div>
           </div>
         </Panel>
