@@ -174,6 +174,7 @@ const LivePanel = () => {
         <Panel noCloseButton onBack={handleBack}>
           <Header
             title="Chaînes TV"
+            noSubtitle
             onBack={handleBack}
             slotBefore={
               <Image
@@ -183,7 +184,7 @@ const LivePanel = () => {
               />
             }
           />
-          <div style={{ display: "flex", height: "calc(100vh - 300px)" }}>
+          <div style={{ display: "flex", height: "calc(100vh - 200px)" }}>
             <CategoryFilter
               groups={groups}
               selectedGroup={selectedGroup}
@@ -202,7 +203,6 @@ const LivePanel = () => {
                   dataSize={filteredChannels.length}
                   itemRenderer={renderItem}
                   itemSize={ri.scale(96)}
-                  style={{ height: "calc(100vh - 400px)" }}
                   cbScrollTo={handleScrollTo}
                 />
               )}

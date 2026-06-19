@@ -2,7 +2,6 @@ import { useMemo, useCallback, useEffect, useState, useRef } from "react";
 import { Panel, Header } from "@enact/sandstone/Panels";
 import { VirtualGridList } from "@enact/sandstone/VirtualList";
 import BodyText from "@enact/sandstone/BodyText";
-import ActionGuide from "@enact/sandstone/ActionGuide";
 import { useNavigate, useOutlet } from "react-router-dom";
 import ri from "@enact/ui/resolution";
 import Icon from "@enact/sandstone/Icon";
@@ -190,7 +189,7 @@ const PosterPanel = ({ category }: PosterPanelProps) => {
               />
             }
           />
-          <div style={{ display: "flex", height: "calc(100vh - 300px)" }}>
+          <div style={{ display: "flex", height: "calc(100vh - 200px)" }}>
             <CategoryFilter
               groups={groups}
               selectedGroup={selectedGroup}
@@ -208,15 +207,14 @@ const PosterPanel = ({ category }: PosterPanelProps) => {
                 <VirtualGridList
                   dataSize={filteredChannels.length}
                   itemRenderer={renderItem}
-                  itemSize={{ minWidth: ri.scale(500), minHeight: ri.scale(750) }}
+                  itemSize={{
+                    minWidth: ri.scale(500),
+                    minHeight: ri.scale(750),
+                  }}
                   spacing={ri.scale(8)}
-                  style={{ height: "calc(100vh - 400px)" }}
                   cbScrollTo={handleScrollTo}
                 />
               )}
-              <ActionGuide icon="arrowlargedown">
-                Naviguer avec les touches directionnelles
-              </ActionGuide>
             </div>
           </div>
         </Panel>
